@@ -1,0 +1,63 @@
+# ssem.test         -*-Tcl-*-
+#
+#    Manchester Small-Scale Experimental Machine (SSEM) Simulator test suite
+#
+# Copyright (c) 2010 Sebastián Reguera Candal
+
+package require tcltest
+#package require ssem
+source ssem.tcl
+namespace eval ::ssem::test {
+    namespace import ::tcltest::*
+
+    customMatch intEq ::ssem::test::intEqProc
+    proc intEqProc {a b} {
+        return [expr ($a == $b)]
+    }
+
+    test encodeJmp {} -body {
+        ::ssem::encode jmp
+    } -match intEq -result 0x0000
+
+    test encodeSub {} -body {
+        ::ssem::encode sub
+    } -match intEq -result 0x1000
+
+    test encodeLdn {} -body {
+        ::ssem::encode ldn
+    } -match intEq -result 0x2000
+
+    test encodeCmp {} -body {
+        ::ssem::encode cmp
+    } -match intEq -result 0x3000
+
+    test encodeJrp {} -body {
+        ::ssem::encode jrp
+    } -match intEq -result 0x4000
+
+    test encodeSto {} -body {
+        ::ssem::encode sto
+    } -match intEq -result 0x6000
+
+    test encodeStp {} -body {
+        ::ssem::encode stp
+    } -match intEq -result 0x7000
+
+    test executeCmpNeg {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode cmp]
+        set ::ssem::A -7
+        ::ssem::step
+        return $::ssem::C
+    } -result 2
+
+    test executeCmpPos {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode cmp]
+        set ::ssem::A 7
+        ::ssem::step
+        return $::ssem::C
+    } -result 1
+
+    cleanupTests
+}
