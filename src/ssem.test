@@ -59,5 +59,39 @@ namespace eval ::ssem::test {
         return $::ssem::C
     } -result 1
 
+    test executeJmp {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode jmp 30]
+        ::ssem::mset 30 10
+        ::ssem::step
+        return $::ssem::C
+    } -result 10
+
+    test executeJrp {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode jrp 30]
+        ::ssem::mset 30 10
+        ::ssem::step
+        return $::ssem::C
+    } -result 11
+
+    test executeLdn {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode ldn 30]
+        ::ssem::mset 30 10
+        ::ssem::step
+        return $::ssem::A
+    } -result -10
+
+    test executeSub {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode sub 30]
+        ::ssem::mset 30 10
+        set ::ssem::A 25
+        ::ssem::step
+        return $::ssem::A
+    } -result 15
+
+
     cleanupTests
 }
