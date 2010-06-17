@@ -83,6 +83,20 @@ namespace eval ::ssem::test {
         return $::ssem::A
     } -result -10
 
+    test executeSto {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode sto 30]
+        set ::ssem::A 25
+        ::ssem::step
+        return [::ssem::mget 30]
+    } -result 25
+
+    test executeStp {} -body {
+        ::ssem::reset
+        ::ssem::mset 1 [::ssem::encode stp]
+        return [::ssem::step] 
+    } -result 0
+
     test executeSub {} -body {
         ::ssem::reset
         ::ssem::mset 1 [::ssem::encode sub 30]

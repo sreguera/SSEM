@@ -39,27 +39,27 @@ proc ::ssem::reset {} {
     return
 }
 
-# ::ssem::step
+# ::ssem::step1
 #    Execute the next instruction
 # Results:
 #    The registers and memory change according to the executed instruction
-proc ::ssem::step {} {
+proc ::ssem::step1 {} {
     variable A 
     variable C
     variable PI
     incr C
     set PI [mget $C]
     set op [IOpcode $PI]
-    set s [mget [IAddress $PI]]
+    set s [IAddress $PI]
     if {$op == 0b000} {
         # JMP S
-        set C $s
+        set C [mget $s]
     } elseif {($op == 0b001) || ($op == 0b101)} {
         # SUB S
-        set A [expr {int($A - $s)}]
+        set A [expr {int($A - [mget $s])}]
     } elseif {$op == 0b010} {
         # LDN S
-        set A [expr {- $s}]
+        set A [expr {- [mget $s]}]
     } elseif {$op == 0b011} {
         # CMP
         if {$A < 0} {
@@ -67,20 +67,24 @@ proc ::ssem::step {} {
         }
     } elseif {$op == 0b100} {
         # JRP S
-        set C [expr {int($C + $s)}]
+        set C [expr {int($C + [mget $s])}]
     } elseif {$op == 0b110} {
         # STO S
-        [mset $s $A]
+        mset $s $A
     } elseif {$op == 0b111} {
         # STP
+        return 0
     }
-    return
+    return 1
 }
 
-proc ::ssem::steps {{n 1}} {
+proc ::ssem::step {{n 1}} {
     for {set i 0} {$i < $n} {incr i} {
-        ::ssem::step
+        if {![::ssem::step1]} {
+            return 0
+        } 
     }
+    return 1
 }
 
 # ::ssem::mget
