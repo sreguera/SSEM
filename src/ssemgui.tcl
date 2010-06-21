@@ -13,55 +13,68 @@ namespace eval ::ssem::gui {
     variable stopFlag false
 }
 
-proc ::ssem::gui::stopEmu {} {
-    variable stopFlag
-    set stopFlag true
+proc ::ssem::gui::updateMem {} {
+    for {set pos 0} {$pos < 32} {incr pos} {
+        .c.memx set $pos value [lindex $::ssem::Store $pos]
+    }
+}
+
+proc ::ssem::gui::stepEmu {} {
+    ::ssem::step
+    updateMem
 }
 
 proc ::ssem::gui::runEmu {} {
     variable stopFlag
     set stopFlag false
-    .c.step configure -state disabled
-    .c.run configure -state disabled
+    .c.but.step configure -state disabled
+    .c.but.run configure -state disabled
     while {! $stopFlag} {
         if {! [::ssem::step 1001]} {
             set stopFlag true
         }
+        updateMem
         update
     }
-    .c.step configure -state enabled
-    .c.run configure -state enabled
+    .c.but.step configure -state enabled
+    .c.but.run configure -state enabled
+}
+
+proc ::ssem::gui::stopEmu {} {
+    variable stopFlag
+    set stopFlag true
 }
 
 proc ::ssem::gui::mainFrame {} {
-    grid [ttk::frame .c] -column 0 -row 0
+    pack [ttk::frame .c]
 
-    grid [ttk::label .c.aregl -text "A:"] \
-        -column 0 -row 0
-    grid [ttk::label .c.areg -textvariable ::ssem::A] \
-        -column 1 -row 0
+    pack [ttk::frame .c.reg]
 
-    grid [ttk::label .c.cregl -text "C:"] \
-        -column 0 -row 1
-    grid [ttk::label .c.creg -textvariable ::ssem::C] \
-        -column 1 -row 1
+    pack [ttk::label .c.reg.aregl -text "A:"] -side left
+    pack [ttk::label .c.reg.areg -textvariable ::ssem::A] -side left
 
-    grid [ttk::label .c.piregl -text "PI:"] \
-        -column 0 -row 2
-    grid [ttk::label .c.pireg -textvariable ::ssem::PI] \
-        -column 1 -row 2
+    pack [ttk::label .c.reg.cregl -text "C:"] -side left
+    pack [ttk::label .c.reg.creg -textvariable ::ssem::C] -side left
 
-    grid [ttk::label .c.meml -text "M:"] \
-        -column 0 -row 3
-    grid [tk::listbox .c.mem -height 32 -listvariable ::ssem::Store] \
-        -column 1 -row 3
+    pack [ttk::label .c.reg.piregl -text "PI:"] -side left
+    pack [ttk::label .c.reg.pireg -textvariable ::ssem::PI] -side left
 
-    grid [ttk::button .c.step -text "Step" -command ::ssem::step] \
-        -column 0 -row 4
-    grid [ttk::button .c.run  -text "Run"  -command ::ssem::gui::runEmu] \
-        -column 1 -row 4
-    grid [ttk::button .c.stop -text "Stop" -command ::ssem::gui::stopEmu] \
-        -column 2 -row 4
+    pack [ttk::label .c.meml -text "M:"]
+    pack [ttk::treeview .c.memx -height 32 -columns {value}]
+    .c.memx heading #0 -text {Address}
+    .c.memx heading value -text {Value}
+    for {set pos 0} {$pos < 32} {incr pos} {
+        .c.memx insert {} end -id $pos -text $pos
+    }
+
+    pack [ttk::frame .c.but]
+
+    pack [ttk::button .c.but.step -text "Step" -command ::ssem::gui::stepEmu] \
+        -side left
+    pack [ttk::button .c.but.run  -text "Run"  -command ::ssem::gui::runEmu] \
+        -side left
+    pack [ttk::button .c.but.stop -text "Stop" -command ::ssem::gui::stopEmu] \
+        -side left
 }
 
 wm title . "SSEM Emulator"
@@ -95,4 +108,4 @@ set N 262144
 ::ssem::mset 24 0
 ::ssem::mset 25 16
 
-
+::ssem::gui::updateMem
