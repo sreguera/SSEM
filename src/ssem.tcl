@@ -149,3 +149,16 @@ proc ::ssem::encode {inst {addr 0}} {
     }
     return [expr {($codes($inst) << 12) | ($addr & 0xFFF)}]
 }
+
+proc ::ssem::decode {inst} {
+    array set codes {
+        0 jmp
+        1 sub
+        2 ldn
+        3 cmp
+        4 jrp
+        6 sto
+        7 stp
+    }
+    return [list $codes([IOpcode $inst]) [IAddress $inst]]
+}

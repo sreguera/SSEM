@@ -16,6 +16,7 @@ namespace eval ::ssem::gui {
 proc ::ssem::gui::updateMem {} {
     for {set pos 0} {$pos < 32} {incr pos} {
         .c.memx set $pos value [lindex $::ssem::Store $pos]
+        .c.memx set $pos inst [::ssem::decode [lindex $::ssem::Store $pos]]
     }
 }
 
@@ -60,9 +61,10 @@ proc ::ssem::gui::mainFrame {} {
     pack [ttk::label .c.reg.pireg -textvariable ::ssem::PI] -side left
 
     pack [ttk::label .c.meml -text "M:"]
-    pack [ttk::treeview .c.memx -height 32 -columns {value}]
+    pack [ttk::treeview .c.memx -height 32 -columns {value inst}]
     .c.memx heading #0 -text {Address}
     .c.memx heading value -text {Value}
+    .c.memx heading inst -text {Inst}
     for {set pos 0} {$pos < 32} {incr pos} {
         .c.memx insert {} end -id $pos -text $pos
     }
