@@ -152,13 +152,20 @@ proc ::ssem::encode {inst {addr 0}} {
 
 proc ::ssem::decode {inst} {
     array set codes {
-        0 jmp
-        1 sub
-        2 ldn
-        3 cmp
-        4 jrp
-        6 sto
-        7 stp
+        0 {jmp 1}
+        1 {sub 1}
+        2 {ldn 1}
+        3 {cmp 0}
+        4 {jrp 1}
+        5 {sub 1}
+        6 {sto 1}
+        7 {stp 0}
     }
-    return [list $codes([IOpcode $inst]) [IAddress $inst]]
+    set def $codes([IOpcode $inst])
+    set rep [list [lindex $def 0]]
+    if {[lindex $def 1] == 1} {
+        return [list [lindex $def 0] [IAddress $inst]]
+    } else {
+        return [list [lindex $def 0]]
+    }
 }
