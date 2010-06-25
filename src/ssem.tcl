@@ -51,27 +51,27 @@ proc ::ssem::step1 {} {
     set PI [mget $C]
     set op [IOpcode $PI]
     set s [IAddress $PI]
-    if {$op == 0b000} {
+    if {$op == 0} {
         # JMP S
         set C [mget $s]
-    } elseif {($op == 0b001) || ($op == 0b101)} {
+    } elseif {($op == 1) || ($op == 5)} {
         # SUB S
         set A [expr {int($A - [mget $s])}]
-    } elseif {$op == 0b010} {
+    } elseif {$op == 2} {
         # LDN S
         set A [expr {- [mget $s]}]
-    } elseif {$op == 0b011} {
+    } elseif {$op == 3} {
         # CMP
         if {$A < 0} {
             incr C
         }
-    } elseif {$op == 0b100} {
+    } elseif {$op == 4} {
         # JRP S
         set C [expr {int($C + [mget $s])}]
-    } elseif {$op == 0b110} {
+    } elseif {$op == 6} {
         # STO S
         mset $s $A
-    } elseif {$op == 0b111} {
+    } elseif {$op == 7} {
         # STP
         return 0
     }
@@ -139,13 +139,13 @@ proc ::ssem::IAddress {inst} {
 #    Return the integer encoding the instruction
 proc ::ssem::encode {inst {addr 0}} {
     array set codes {
-        jmp 0b000
-        sub 0b001
-        ldn 0b010
-        cmp 0b011
-        jrp 0b100
-        sto 0b110
-        stp 0b111
+        jmp 0
+        sub 1
+        ldn 2
+        cmp 3
+        jrp 4
+        sto 6
+        stp 7
     }
     return [expr {($codes($inst) << 12) | ($addr & 0xFFF)}]
 }
@@ -162,7 +162,6 @@ proc ::ssem::decode {inst} {
         7 {stp 0}
     }
     set def $codes([IOpcode $inst])
-    set rep [list [lindex $def 0]]
     if {[lindex $def 1] == 1} {
         return [list [lindex $def 0] [IAddress $inst]]
     } else {
