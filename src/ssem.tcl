@@ -9,7 +9,7 @@ package require Tcl  8.5
 
 namespace eval ::ssem {
 
-    namespace export reset step mget mset mreset
+    namespace export reset step msize mget mset mreset
 
     # Memory
     variable Store [lrepeat 32 0]
@@ -39,11 +39,11 @@ proc ::ssem::reset {} {
     return
 }
 
-# ::ssem::step1
+# ::ssem::Step1
 #    Execute the next instruction
 # Results:
 #    The registers and memory change according to the executed instruction
-proc ::ssem::step1 {} {
+proc ::ssem::Step1 {} {
     variable A 
     variable C
     variable PI
@@ -78,13 +78,23 @@ proc ::ssem::step1 {} {
     return 1
 }
 
+# ::ssem::step
+#    Execute the next n instructions
+# Results:
+#    The registers and memory change according to the executed instructions
 proc ::ssem::step {{n 1}} {
     for {set i 0} {$i < $n} {incr i} {
-        if {![::ssem::step1]} {
+        if {![::ssem::Step1]} {
             return 0
         } 
     }
     return 1
+}
+
+# ::ssem::msize
+#    Return the memory size
+proc ::ssem::msize {} {
+    return 32
 }
 
 # ::ssem::mget
@@ -119,7 +129,7 @@ proc ::ssem::mset {pos val} {
 #    All the memory locations have the value 0
 proc ::ssem::mreset {} {
     variable Store
-    set Store [lrepeat 32 0]
+    set Store [lrepeat [msize] 0]
     return
 }
 
@@ -150,6 +160,8 @@ proc ::ssem::encode {inst {addr 0}} {
     return [expr {($codes($inst) << 12) | ($addr & 0xFFF)}]
 }
 
+# ::ssem::decode
+#    Return the instruction encoded in the passed integer
 proc ::ssem::decode {inst} {
     array set codes {
         0 {jmp 1}

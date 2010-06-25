@@ -10,43 +10,53 @@ source ssem.tcl
 
 namespace eval ::ssem::gui {
 
-    variable stopFlag false
+    variable StopFlag false
 }
 
-proc ::ssem::gui::updateMem {} {
-    for {set pos 0} {$pos < 32} {incr pos} {
-        .c.memx set $pos value [lindex $::ssem::Store $pos]
-        .c.memx set $pos inst [::ssem::decode [lindex $::ssem::Store $pos]]
+# ::ssem::gui::UpdateMem
+#    Update the memory values in the memory table widget
+proc ::ssem::gui::UpdateMem {} {
+    for {set pos 0} {$pos < [::ssem::msize]} {incr pos} {
+        .c.memx set $pos value [::ssem::mget $pos]
+        .c.memx set $pos inst [::ssem::decode [::ssem::mget $pos]]
     }
 }
 
-proc ::ssem::gui::stepEmu {} {
+# ::ssem::gui::StepEmu
+#    Step
+proc ::ssem::gui::StepEmu {} {
     ::ssem::step
-    updateMem
+    UpdateMem
 }
 
-proc ::ssem::gui::runEmu {} {
-    variable stopFlag
-    set stopFlag false
+# ::ssem::gui::RunEmu
+#    Run
+proc ::ssem::gui::RunEmu {} {
+    variable StopFlag
+    set StopFlag false
     .c.but.step configure -state disabled
     .c.but.run configure -state disabled
-    while {! $stopFlag} {
+    while {! $StopFlag} {
         if {! [::ssem::step 1001]} {
-            set stopFlag true
+            set StopFlag true
         }
-        updateMem
+        UpdateMem
         update
     }
     .c.but.step configure -state enabled
     .c.but.run configure -state enabled
 }
 
-proc ::ssem::gui::stopEmu {} {
-    variable stopFlag
-    set stopFlag true
+# ::ssem::gui::StopEmu
+#    Stop
+proc ::ssem::gui::StopEmu {} {
+    variable StopFlag
+    set StopFlag true
 }
 
-proc ::ssem::gui::mainFrame {} {
+# ::ssem::gui::MainFrame
+#    Create the main window frame
+proc ::ssem::gui::MainFrame {} {
     pack [ttk::frame .c]
 
     pack [ttk::frame .c.reg]
@@ -65,23 +75,28 @@ proc ::ssem::gui::mainFrame {} {
     .c.memx heading #0 -text {Address}
     .c.memx heading value -text {Value}
     .c.memx heading inst -text {Inst}
-    for {set pos 0} {$pos < 32} {incr pos} {
+    for {set pos 0} {$pos < [::ssem::msize]} {incr pos} {
         .c.memx insert {} end -id $pos -text $pos
     }
 
     pack [ttk::frame .c.but]
 
-    pack [ttk::button .c.but.step -text "Step" -command ::ssem::gui::stepEmu] \
+    pack [ttk::button .c.but.step -text "Step" \
+              -command [namespace code StepEmu]] \
         -side left
-    pack [ttk::button .c.but.run  -text "Run"  -command ::ssem::gui::runEmu] \
+    pack [ttk::button .c.but.run  -text "Run"  \
+              -command [namespace code RunEmu]] \
         -side left
-    pack [ttk::button .c.but.stop -text "Stop" -command ::ssem::gui::stopEmu] \
+    pack [ttk::button .c.but.stop -text "Stop" \
+              -command [namespace code StopEmu]] \
         -side left
 }
 
+# Start the application
 wm title . "SSEM Emulator"
-::ssem::gui::mainFrame
+::ssem::gui::MainFrame
 
+# Load a sample program just to show something
 set N 262144
 
 ::ssem::mset  1 [::ssem::encode ldn 18]
@@ -110,4 +125,4 @@ set N 262144
 ::ssem::mset 24 0
 ::ssem::mset 25 16
 
-::ssem::gui::updateMem
+::ssem::gui::UpdateMem
