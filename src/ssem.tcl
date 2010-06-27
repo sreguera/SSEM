@@ -180,3 +180,24 @@ proc ::ssem::decode {inst} {
         return [list [lindex $def 0]]
     }
 }
+
+
+proc ::ssem::asm {insts} {
+    set buf {}
+    foreach i $insts {
+        if {[lindex $i 0] eq "expr"} {
+            lappend buf [expr {*}[lrange $i 1 end]]
+        } else {
+            lappend buf [encode {*}$i]
+        }
+    }
+    return $buf
+}
+
+proc ::ssem::load {buf} {
+    set pos 0
+    foreach i $buf {
+        mset $pos $i
+        incr pos
+    }
+}
