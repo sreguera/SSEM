@@ -51,29 +51,15 @@ proc ::ssem::Step1 {} {
     set PI [mget $C]
     set op [IOpcode $PI]
     set s [IAddress $PI]
-    if {$op == 0} {
-        # JMP S
-        set C [mget $s]
-    } elseif {($op == 1) || ($op == 5)} {
-        # SUB S
-        set A [expr {int($A - [mget $s])}]
-    } elseif {$op == 2} {
-        # LDN S
-        set A [expr {- [mget $s]}]
-    } elseif {$op == 3} {
-        # CMP
-        if {$A < 0} {
-            incr C
-        }
-    } elseif {$op == 4} {
-        # JRP S
-        set C [expr {int($C + [mget $s])}]
-    } elseif {$op == 6} {
-        # STO S
-        mset $s $A
-    } elseif {$op == 7} {
-        # STP
-        return 0
+    switch $op {
+        0 { set C [mget $s] }
+        1 { set A [expr {int($A - [mget $s])}] }
+        2 { set A [expr {- [mget $s]}] }
+        3 { if {$A < 0} {incr C} }
+        4 { set C [expr {int($C + [mget $s])}] }
+        5 { set A [expr {int($A - [mget $s])}] }
+        6 { mset $s $A }
+        7 { return 0 }
     }
     return 1
 }
