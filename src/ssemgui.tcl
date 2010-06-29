@@ -17,6 +17,7 @@ namespace eval ::ssem::gui {
 #    Update the memory values in the memory table widget
 proc ::ssem::gui::UpdateMem {} {
     for {set pos 0} {$pos < [::ssem::msize]} {incr pos} {
+        .c.memx set $pos address $pos
         .c.memx set $pos value [::ssem::mget $pos]
         .c.memx set $pos inst [::ssem::decode [::ssem::mget $pos]]
     }
@@ -62,21 +63,24 @@ proc ::ssem::gui::MainFrame {} {
     pack [ttk::frame .c.reg]
 
     pack [ttk::label .c.reg.aregl -text "A:"] -side left
-    pack [ttk::label .c.reg.areg -textvariable ::ssem::A] -side left
+    pack [ttk::label .c.reg.areg -textvariable ::ssem::A -width 11] -side left
 
     pack [ttk::label .c.reg.cregl -text "C:"] -side left
-    pack [ttk::label .c.reg.creg -textvariable ::ssem::C] -side left
+    pack [ttk::label .c.reg.creg -textvariable ::ssem::C -width 11] -side left
 
     pack [ttk::label .c.reg.piregl -text "PI:"] -side left
-    pack [ttk::label .c.reg.pireg -textvariable ::ssem::PI] -side left
+    pack [ttk::label .c.reg.pireg -textvariable ::ssem::PI -width 11] -side left
 
     pack [ttk::label .c.meml -text "M:"]
-    pack [ttk::treeview .c.memx -height 32 -columns {value inst}]
-    .c.memx heading #0 -text {Address}
+    pack [ttk::treeview .c.memx -show headings -height 32 -columns {address value inst}]
+    .c.memx heading address -text {Addr}
     .c.memx heading value -text {Value}
     .c.memx heading inst -text {Inst}
+    .c.memx column address -width 100 -anchor e
+    .c.memx column value -width 120 -anchor e
+    .c.memx column inst -width 120
     for {set pos 0} {$pos < [::ssem::msize]} {incr pos} {
-        .c.memx insert {} end -id $pos -text $pos
+        .c.memx insert {} end -id $pos 
     }
 
     pack [ttk::frame .c.but]
