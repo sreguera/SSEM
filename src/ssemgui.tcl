@@ -16,6 +16,9 @@ namespace eval ::ssem::gui {
 # ::ssem::gui::UpdateMem
 #    Update the memory values in the memory table widget
 proc ::ssem::gui::UpdateMem {} {
+    .c.reg.areg configure -text $::ssem::A 
+    .c.reg.creg configure -text $::ssem::C
+    .c.reg.pireg configure -text $::ssem::PI
     for {set pos 0} {$pos < [::ssem::msize]} {incr pos} {
         .c.memx set $pos address $pos
         .c.memx set $pos value [::ssem::mget $pos]
@@ -38,12 +41,13 @@ proc ::ssem::gui::RunEmu {} {
     .c.but.step configure -state disabled
     .c.but.run configure -state disabled
     while {! $StopFlag} {
-        if {! [::ssem::step 1001]} {
+        if {! [::ssem::step 1000]} {
             set StopFlag true
         }
         UpdateMem
         update
     }
+    UpdateMem
     .c.but.step configure -state enabled
     .c.but.run configure -state enabled
 }
@@ -63,13 +67,13 @@ proc ::ssem::gui::MainFrame {} {
     pack [ttk::frame .c.reg]
 
     pack [ttk::label .c.reg.aregl -text "A:"] -side left
-    pack [ttk::label .c.reg.areg -textvariable ::ssem::A -width 11] -side left
+    pack [ttk::label .c.reg.areg -width 11] -side left
 
     pack [ttk::label .c.reg.cregl -text "C:"] -side left
-    pack [ttk::label .c.reg.creg -textvariable ::ssem::C -width 11] -side left
+    pack [ttk::label .c.reg.creg -width 11] -side left
 
     pack [ttk::label .c.reg.piregl -text "PI:"] -side left
-    pack [ttk::label .c.reg.pireg -textvariable ::ssem::PI -width 11] -side left
+    pack [ttk::label .c.reg.pireg -width 11] -side left
 
     pack [ttk::label .c.meml -text "M:"]
     pack [ttk::treeview .c.memx -show headings -height 32 -columns {address value inst}]
