@@ -1,3 +1,11 @@
+SSEM, A Manchester Small-Scale Experimental Machine (SSEM) Emulator.
+
+The SSEM was the first stored-program computer. A description of the
+machine can be found in its Wikipedia entry:
+
+  http://en.wikipedia.org/wiki/Manchester_Small-Scale_Experimental_Machine
+
+
 LICENSE
 
 See the LICENSE file.
