@@ -33,7 +33,7 @@ The first section shows the contents of the registers and the memory:
 * **M** Memory
   * **Addr** The address of the memory cell
   * **Value** The contents of the memory cell
-  * **Inst** The contents of the memory cell interpreted as a instruction
+  * **Inst** The contents of the memory cell interpreted as an instruction
 
 The second section contains the buttons that control the emulator: 
 
